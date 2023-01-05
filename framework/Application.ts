@@ -4,7 +4,8 @@ import http, {
   ServerResponse
 } from "http";
 import EventEmitter from "events";
-import parseUrl from "../src/helpers/parseUrl";
+import Router from "./Router";
+import router from "../src/user-router";
 
 /* export type ReqType = IncomingMessage & {
   body: any;
@@ -14,7 +15,8 @@ import parseUrl from "../src/helpers/parseUrl";
 export interface IReq extends IncomingMessage {
   body: any;
   pathname: string;
-  params?: any;
+  errorStatus?: number;
+  errorMessage?: string;
   id?: string;
 }
 
@@ -41,7 +43,7 @@ class Application {
     this.server.listen(port, callback);
   }
 
-  addRouter(router: any) {
+  addRouter(router: Router) {
     Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];
       Object.keys(endpoint).forEach((method) => {
@@ -49,15 +51,12 @@ class Application {
           this._getRouteMask(path, method),
           (req, res) => {
             const handler = endpoint[method];
-
             handler(req, res);
           }
         );
       });
     });
   }
-
-  parseUrl() {}
 
   _createServer() {
     return createServer((req, res) => {
@@ -82,8 +81,8 @@ class Application {
         );
 
         if (!emitted) {
-          res.writeHead(404);
-          res.end("Page not found!");
+          res.writeHead((req as IReq).errorStatus || 404);
+          res.end((req as IReq).errorMessage || "Page not found!");
         }
       });
     });

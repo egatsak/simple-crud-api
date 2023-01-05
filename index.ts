@@ -2,6 +2,7 @@ import Application from "./framework/Application";
 import userRouter from "./src/user-router";
 import jsonParser from "./framework/parseJson";
 import { IUser } from "./models/models";
+import parseUrl from "./framework/parseUrl";
 
 const PORT = process.env.PORT || 5000;
 const API_URL = process.env.BASE_URL || "http://localhost:5000";
@@ -9,7 +10,7 @@ const API_URL = process.env.BASE_URL || "http://localhost:5000";
 const app = new Application();
 
 app.use(jsonParser);
-//app.use(parseUrl(API_URL));
+app.use(parseUrl(API_URL));
 app.addRouter(userRouter);
 
 export const users = [] as IUser[];
