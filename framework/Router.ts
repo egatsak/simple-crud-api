@@ -14,8 +14,14 @@ class Router {
     }
     const endpoint = this.endpoints[path];
 
-    if (endpoint[method]) {
-      throw new Error(`${method} on address ${path} already exists!`);
+    try {
+      if (endpoint[method]) {
+        throw new Error(
+          `${method} on address ${path} already exists!`
+        );
+      }
+    } catch (e: any) {
+      console.log(e?.message);
     }
 
     endpoint[method] = handler;

@@ -5,26 +5,27 @@ import { IReq } from "../framework/Application";
   [key: string]: any;
 }; */
 
-export default (baseUrl: any) => (req: IReq, res: any) => {
+export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   let url = req.url;
+
   if (url?.endsWith("/")) {
     url = url.slice(0, url.length - 1);
   }
-  //console.log(url);
+
   const parsedUrl = new URL(url!, baseUrl);
   const pathnameParts = url!.split("/");
-  // console.log(pathnameParts);
 
-  if (pathnameParts.length > 4 && pathnameParts[4] !== "") {
-    console.log("Incorrect URL");
-    req.errorStatus = 400;
-    req.errorMessage = "Incorrect URL";
+  // /api/users (kostyl')
+  if (
+    pathnameParts.length > 4 ||
+    pathnameParts.slice(0, 3).join("/") !== "/api/users"
+  ) {
     return;
   }
 
   const id = pathnameParts[3];
-  console.log(id);
-  if (pathnameParts[4]?.length > 0 || (id && !checkIfValidUUID(id))) {
+
+  if (id && !checkIfValidUUID(id)) {
     console.log("Invalid UUID");
     req.errorStatus = 400;
     req.errorMessage = "Invalid UUID";
@@ -35,12 +36,8 @@ export default (baseUrl: any) => (req: IReq, res: any) => {
     req.id = id;
     pathnameParts.pop();
     req.pathname = pathnameParts.join("/") + "/:id";
-    console.log(req.pathname, req.id);
     return;
   }
 
   req.pathname = parsedUrl.pathname;
-  // console.log(parsedUrl.pathname);
-  /*   req.id = id; */
-  /*   req.params = params; */
 };

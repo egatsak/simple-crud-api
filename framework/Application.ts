@@ -43,6 +43,10 @@ class Application {
     this.server.listen(port, callback);
   }
 
+  close(callback: any) {
+    this.server.close(callback);
+  }
+
   addRouter(router: Router) {
     Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];
@@ -66,12 +70,12 @@ class Application {
       });
 
       req.on("end", () => {
-        if (body) {
+        /*         if (body) {
           (req as IReq).body = JSON.parse(body);
-        }
+        } */
 
         this.middlewares.forEach((middleware) =>
-          middleware(req, res)
+          middleware(req, res, body)
         );
 
         const emitted = this.emitter.emit(
@@ -80,7 +84,7 @@ class Application {
           res
         );
 
-        if (!emitted) {
+        if (!emitted || (req as IReq).errorStatus) {
           res.writeHead((req as IReq).errorStatus || 404);
           res.end((req as IReq).errorMessage || "Page not found!");
         }
