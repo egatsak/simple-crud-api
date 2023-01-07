@@ -5,7 +5,6 @@ import http, {
 } from "http";
 import EventEmitter from "events";
 import Router from "./Router";
-import router from "../src/user-router";
 
 /* export type ReqType = IncomingMessage & {
   body: any;
@@ -28,11 +27,13 @@ export type ResType = ServerResponse<IncomingMessage> & {
 class Application {
   emitter: EventEmitter;
   server: http.Server<typeof IncomingMessage, typeof ServerResponse>;
+  sockets: Set<any>;
   middlewares: any[];
   constructor() {
     this.emitter = new EventEmitter();
     this.server = this._createServer();
     this.middlewares = [];
+    this.sockets = new Set();
   }
 
   use(middleware: any) {
@@ -40,10 +41,27 @@ class Application {
   }
 
   listen(port: number, callback: any) {
+    this.server.on("connection", (socket) => {
+      this.sockets.add(socket);
+
+      this.server.once("close", () => {
+        this.sockets.delete(socket);
+      });
+    });
+
     this.server.listen(port, callback);
   }
 
   close(callback: any) {
+    /*     this.server.close(callback); */
+    setImmediate(() => {
+      this.server.emit("close");
+    });
+    this.sockets.forEach((val: any) => {
+      val.destroy();
+      this.sockets.delete(val);
+    });
+    this.server.closeAllConnections();
     this.server.close(callback);
   }
 
