@@ -1,21 +1,7 @@
 import request from "supertest";
-import Application from "./framework/Application";
-import bodyParser from "./framework/bodyParser";
-import parseJson from "./framework/parseJson";
-import parseUrl from "./framework/parseUrl";
-import userRouter from "./src/user-router";
-
-import { API_URL as baseURL, app } from ".";
-
+import { app } from ".";
 import { checkIfValidUUID } from "./src/helpers/helpers";
-
-import { IUser } from "./models/models";
-
-/* const app = new Application();
-app.use(bodyParser);
-app.use(parseJson);
-app.use(parseUrl(baseURL));
-app.addRouter(userRouter); */
+import { ErrorMessages, IUser } from "./models/models";
 
 const mockUser: Omit<IUser, "id"> = {
   username: "user1",
@@ -35,7 +21,7 @@ describe("Server App Test Case 1", () => {
 
   afterAll((done) => {
     app.close(() => {
-      console.log("Closing...");
+      // console.log("Closing...");
       /*       process.exit(); */
     });
     done();
@@ -50,6 +36,7 @@ describe("Server App Test Case 1", () => {
   it("should GET unknown url and receive error response", async () => {
     const res = await response.get("/api/us/12345");
     expect(res.statusCode).toBe(404);
+    expect(res.text).toBe(ErrorMessages.PAGE_NOT_FOUND);
   });
 
   it("should POST and add new user", async () => {
@@ -138,6 +125,15 @@ describe("Server App Test Case 2", () => {
   it("should POST user with existing username and receive error response", async () => {
     const res = await response.post("/api/users").send(mockUser);
     expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.USER_ALREADY_EXISTS);
+  });
+
+  it("should POST user without age field and receive error response", async () => {
+    const res = await response
+      .post("/api/users")
+      .send({ username: "John", hobbies: ["drink"] });
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INVALID_AGE_VALUE);
   });
 
   it("should PUT user with incorrect JSON and receive error response", async () => {
@@ -145,6 +141,7 @@ describe("Server App Test Case 2", () => {
       .put(`/api/users/${userId}`)
       .send({ ...mockUser, hobbies: null });
     expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INVALID_HOBBIES);
   });
 
   it("should DELETE and delete user", async () => {
@@ -156,6 +153,7 @@ describe("Server App Test Case 2", () => {
   it("should GET deleted user and receive error response", async () => {
     const res = await response.get(`/api/users/${userId}`);
     expect(res.statusCode).toBe(404);
+    expect(res.text).toBe(ErrorMessages.USER_NOT_FOUND);
   });
 });
 
@@ -193,6 +191,7 @@ describe("Server App Test Case 3", () => {
       "/api/users/eb2e080f-2125-49ee-9ba5-4d2822a100d2"
     );
     expect(res.statusCode).toBe(404);
+    expect(res.text).toBe(ErrorMessages.USER_NOT_FOUND);
   });
 
   it("should GET user with invalid ID and receive error response", async () => {
@@ -200,12 +199,43 @@ describe("Server App Test Case 3", () => {
       "/api/users/eb2e080f-2125-49ee-9ba5-4d28"
     );
     expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INVALID_UUID);
   });
 
-  it("should POST user with incorrect JSON and receive error response", async () => {
+  it("should POST user with incorrect field values and receive error response", async () => {
     const res = await response
       .post("/api/users")
       .send({ ...mockUser, username: null });
     expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INVALID_USERNAME);
+  });
+
+  it("should POST user with incorrect JSON and receive error response", async () => {
+    const { age, ...rest } = mockUser;
+    const res = await response.post("/api/users").send(rest);
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INVALID_AGE_VALUE);
+  });
+
+  it("should POST user with redundant fields and receive error response", async () => {
+    const res = await response
+      .post("/api/users")
+      .send({ ...mockUser, baz: "foo" });
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.INCORRECT_REQ_DATA);
+  });
+
+  it("should POST user with empty JSON and receive error response", async () => {
+    const res = await response.post("/api/users").send();
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.REQ_BODY_MISSING);
+  });
+
+  it("should POST user with invalid JSON and receive error response", async () => {
+    const res = await response.post("/api/users").send(`eifneifn`);
+    expect(res.statusCode).toBe(500);
+    expect(res.text.slice(0, 28)).toBe(
+      ErrorMessages.FAILED_PARSE_BODY
+    );
   });
 });

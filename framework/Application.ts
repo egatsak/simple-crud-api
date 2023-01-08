@@ -5,30 +5,19 @@ import http, {
 } from "http";
 import EventEmitter from "events";
 import Router from "./Router";
-
-/* export type ReqType = IncomingMessage & {
-  body: any;
-  pathname: string;
-}; */
-
-export interface IReq extends IncomingMessage {
-  body: any;
-  pathname: string;
-  errorStatus?: number;
-  errorMessage?: string;
-  id?: string;
-}
-
-export type ResType = ServerResponse<IncomingMessage> & {
-  req: IncomingMessage;
-  send: (code: any, data: any) => void;
-};
+import {
+  ErrorMessages,
+  IMiddleware,
+  IReq,
+  IRes
+} from "../models/models";
 
 class Application {
   emitter: EventEmitter;
   server: http.Server<typeof IncomingMessage, typeof ServerResponse>;
   sockets: Set<any>;
-  middlewares: any[];
+  middlewares: IMiddleware[];
+
   constructor() {
     this.emitter = new EventEmitter();
     this.server = this._createServer();
@@ -36,11 +25,11 @@ class Application {
     this.sockets = new Set();
   }
 
-  use(middleware: any) {
+  use(middleware: IMiddleware) {
     this.middlewares.push(middleware);
   }
 
-  listen(port: number, callback: any) {
+  listen(port: number, callback: () => void) {
     this.server.on("connection", (socket) => {
       this.sockets.add(socket);
 
@@ -52,8 +41,7 @@ class Application {
     this.server.listen(port, callback);
   }
 
-  close(callback: any) {
-    /*     this.server.close(callback); */
+  close(callback: () => void) {
     setImmediate(() => {
       this.server.emit("close");
     });
@@ -65,15 +53,17 @@ class Application {
     this.server.close(callback);
     callback();
   }
+
   kill() {
     process.exit();
   }
+
   addRouter(router: Router) {
     Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];
       Object.keys(endpoint).forEach((method) => {
         this.emitter.on(
-          this._getRouteMask(path, method),
+          this.getRouteMask(path, method),
           (req, res) => {
             const handler = endpoint[method];
             handler(req, res);
@@ -84,36 +74,40 @@ class Application {
   }
 
   _createServer() {
-    return createServer((req, res) => {
+    return createServer((req: IReq, res: any) => {
       let body = "";
       req.on("data", (chunk) => {
         body += chunk;
       });
 
       req.on("end", () => {
-        /*         if (body) {
-          (req as IReq).body = JSON.parse(body);
-        } */
-
         this.middlewares.forEach((middleware) =>
           middleware(req, res, body)
         );
 
         const emitted = this.emitter.emit(
-          this._getRouteMask((req as IReq).pathname, req.method),
+          this.getRouteMask(req.pathname, req.method),
           req,
           res
         );
 
-        if (!emitted || (req as IReq).errorStatus) {
-          res.writeHead((req as IReq).errorStatus || 404);
-          res.end((req as IReq).errorMessage || "Page not found!");
+        if (!emitted || req.errorStatus) {
+          try {
+            (res as IRes).writeHead(req.errorStatus || 404);
+            (res as IRes).end(
+              req.err
+                ? req.errorMessage
+                : ErrorMessages.PAGE_NOT_FOUND
+            );
+          } catch (e) {
+            console.log(e);
+          }
         }
       });
     });
   }
 
-  _getRouteMask(path: any, method: any) {
+  private getRouteMask(path: any, method: any) {
     return `[${path}]:[${method}]`;
   }
 }

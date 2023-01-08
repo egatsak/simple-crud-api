@@ -1,19 +1,21 @@
+import { errorHandler } from "../src/helpers/errorHandler";
+import { ErrorMessages, IReq } from "../models/models";
 import { checkIfValidUUID } from "../src/helpers/helpers";
-import { IReq } from "../framework/Application";
-
-/* type Params = {
-  [key: string]: any;
-}; */
 
 export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   let url = req.url;
 
-  if (url?.endsWith("/")) {
+  if (!url) {
+    errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500);
+    return;
+  }
+
+  if (url.endsWith("/")) {
     url = url.slice(0, url.length - 1);
   }
 
-  const parsedUrl = new URL(url!, baseUrl);
-  const pathnameParts = url!.split("/");
+  const parsedUrl = new URL(url, baseUrl);
+  const pathnameParts = url.split("/");
 
   // /api/users (kostyl')
   if (
@@ -22,13 +24,11 @@ export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   ) {
     return;
   }
-
   const id = pathnameParts[3];
 
   if (id && !checkIfValidUUID(id)) {
     console.log("Invalid UUID");
-    req.errorStatus = 400;
-    req.errorMessage = "Invalid UUID";
+    errorHandler(req, ErrorMessages.INVALID_UUID, 400);
     return;
   }
 
@@ -40,4 +40,5 @@ export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   }
 
   req.pathname = parsedUrl.pathname;
+  req.id = id;
 };

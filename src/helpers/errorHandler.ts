@@ -1,12 +1,17 @@
-import { IReq } from "../../framework/Application";
+import { IReq } from "../../models/models";
 
-export function serverErrorHandler(
+export function errorHandler(
   req: IReq,
   errorMessage: string,
   errorStatus: number,
-  e: any
+  e?: any
 ) {
-  console.log(e);
-  req.errorMessage = errorMessage;
-  req.errorStatus = errorStatus;
+  if (!req.err) {
+    req.err = { message: errorMessage };
+    req.errorMessage = errorMessage;
+    if (e?.message) {
+      req.errorMessage += `; ${e.message}`;
+    }
+    req.errorStatus = errorStatus;
+  }
 }

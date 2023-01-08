@@ -1,8 +1,10 @@
 class FieldValidator {
   errors: string[] = [];
+
   constructor() {
     this.errors = [];
   }
+
   validateUsername(username: any) {
     if (typeof username !== "string" || username.length === 0) {
       this.errors.push("Invalid username");
@@ -10,8 +12,8 @@ class FieldValidator {
   }
 
   validateAge(age: any) {
-    if (age < 0) {
-      this.errors.push("Invalid age");
+    if (typeof age !== "number" || age < 0) {
+      this.errors.push("Invalid age value");
     }
   }
 

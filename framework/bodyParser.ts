@@ -1,12 +1,12 @@
-import { IReq } from "./Application";
+import { ErrorMessages, IReq, IRes } from "../models/models";
+import { errorHandler } from "../src/helpers/errorHandler";
 
-// todo!
-export default (req: IReq, res: any, body: any) => {
+export default (req: IReq, res: IRes, body: any) => {
   try {
     if (body) {
-      (req as IReq).body = JSON.parse(body);
+      req.body = JSON.parse(body);
     }
   } catch (e: any) {
-    console.log(e.message);
+    errorHandler(req, ErrorMessages.FAILED_PARSE_BODY, 500, e);
   }
 };
