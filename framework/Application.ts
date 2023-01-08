@@ -63,8 +63,11 @@ class Application {
     });
     this.server.closeAllConnections();
     this.server.close(callback);
+    callback();
   }
-
+  kill() {
+    process.exit();
+  }
   addRouter(router: Router) {
     Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];

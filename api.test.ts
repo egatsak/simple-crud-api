@@ -5,17 +5,17 @@ import parseJson from "./framework/parseJson";
 import parseUrl from "./framework/parseUrl";
 import userRouter from "./src/user-router";
 
-import { checkIfValidUUID } from "./src/helpers/helpers";
+import { API_URL as baseURL, app } from ".";
 
-import { API_URL as baseURL } from ".";
+import { checkIfValidUUID } from "./src/helpers/helpers";
 
 import { IUser } from "./models/models";
 
-const app = new Application();
+/* const app = new Application();
 app.use(bodyParser);
 app.use(parseJson);
 app.use(parseUrl(baseURL));
-app.addRouter(userRouter);
+app.addRouter(userRouter); */
 
 const mockUser: Omit<IUser, "id"> = {
   username: "user1",
@@ -34,7 +34,10 @@ describe("Server App Test Case 1", () => {
   let userId: any;
 
   afterAll((done) => {
-    app.close(() => {});
+    app.close(() => {
+      console.log("Closing...");
+      /*       process.exit(); */
+    });
     done();
   });
 
