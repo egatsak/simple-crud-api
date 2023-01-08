@@ -1,4 +1,4 @@
-import { IReq } from "../../models/models";
+import { IReq } from "../models/models";
 
 export function errorHandler(
   req: IReq,

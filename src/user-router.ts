@@ -1,4 +1,4 @@
-import Router from "../framework/Router";
+import Router from "./framework/Router";
 import * as controller from "./user-controller";
 const router = new Router();
 

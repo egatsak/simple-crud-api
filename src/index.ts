@@ -4,7 +4,7 @@ import Application from "./framework/Application";
 import jsonParser from "./framework/parseJson";
 import parseUrl from "./framework/parseUrl";
 import bodyParser from "./framework/bodyParser";
-import userRouter from "./src/user-router";
+import userRouter from "./user-router";
 
 import { IUser } from "./models/models";
 

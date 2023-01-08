@@ -1,5 +1,5 @@
 import { ErrorMessages, IReq, IRes } from "../models/models";
-import { errorHandler } from "../src/helpers/errorHandler";
+import { errorHandler } from "../helpers/errorHandler";
 
 export default (req: IReq, res: IRes, body: any) => {
   try {

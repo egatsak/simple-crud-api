@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from ".";
-import { checkIfValidUUID } from "./src/helpers/helpers";
+import { checkIfValidUUID } from "./helpers/helpers";
 import { ErrorMessages, IUser } from "./models/models";
 
 const mockUser: Omit<IUser, "id"> = {
@@ -20,10 +20,7 @@ describe("Server App Test Case 1", () => {
   let userId: any;
 
   afterAll((done) => {
-    app.close(() => {
-      // console.log("Closing...");
-      /*       process.exit(); */
-    });
+    app.close(() => {});
     done();
   });
 

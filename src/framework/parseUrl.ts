@@ -1,6 +1,6 @@
-import { errorHandler } from "../src/helpers/errorHandler";
+import { errorHandler } from "../helpers/errorHandler";
 import { ErrorMessages, IReq } from "../models/models";
-import { checkIfValidUUID } from "../src/helpers/helpers";
+import { checkIfValidUUID } from "../helpers/helpers";
 
 export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   let url = req.url;
@@ -27,7 +27,6 @@ export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   const id = pathnameParts[3];
 
   if (id && !checkIfValidUUID(id)) {
-    console.log("Invalid UUID");
     errorHandler(req, ErrorMessages.INVALID_UUID, 400);
     return;
   }

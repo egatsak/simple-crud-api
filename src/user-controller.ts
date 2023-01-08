@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
-import { users } from "..";
+import { users } from ".";
 
-import { ErrorMessages, IReq, IRes } from "../models/models";
+import { ErrorMessages, IReq, IRes } from "./models/models";
 import { errorHandler } from "./helpers/errorHandler";
 import fieldsValidator from "./helpers/fieldsValidator";
 
@@ -131,7 +131,6 @@ export const deleteUser = async (req: IReq, res: IRes) => {
       }
 
       users.splice(userIndex, 1);
-      console.log("deleted");
       res.send("_", 204);
     } else {
       errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500);
