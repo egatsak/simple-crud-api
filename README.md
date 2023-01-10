@@ -6,7 +6,13 @@
 
 ### How to run
 
-Please clone this repository, then run `npm install` to install the dependencies.
+Please clone this repository, then run `npm install` to install the dependencies, then add `.env` file to the root folder containing the next variables:
+
+`PORT=5000`
+
+`NODE_ENV=development`
+
+`BASE_URL=http://localhost`
 
 Use the following scripts:
 
@@ -33,6 +39,8 @@ Use the following scripts:
 ### How to test
 
 Use [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to send HTTP requests.
+
+In the root folder you can find `Insomnia_doc.json` - you can use it if you prefer Insomnia (as me).
 
 Default URL will be `http://localhost:5000/api/users`
 
