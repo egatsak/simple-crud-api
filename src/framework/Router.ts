@@ -8,7 +8,7 @@ class Router {
     this.endpoints = {};
   }
 
-  request(method = "GET", path: string, handler: any) {
+  request(method = "GET", path: string, handler: () => void) {
     if (!this.endpoints[path]) {
       this.endpoints[path] = {};
     }

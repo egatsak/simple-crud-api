@@ -9,20 +9,27 @@ import {
   ErrorMessages,
   IMiddleware,
   IReq,
-  IRes
+  IRes,
+  IUser
 } from "../models/models";
 
+import * as controllerMulti from "../user-controller-multi";
+
 class Application {
+  db: IUser[];
   emitter: EventEmitter;
   server: http.Server<typeof IncomingMessage, typeof ServerResponse>;
   sockets: Set<any>;
   middlewares: IMiddleware[];
+  router: Router;
 
   constructor() {
     this.emitter = new EventEmitter();
     this.server = this._createServer();
     this.middlewares = [];
     this.sockets = new Set();
+    this.router = new Router();
+    this.db = [];
   }
 
   use(middleware: IMiddleware) {
@@ -41,6 +48,10 @@ class Application {
     this.server.listen(port, callback);
   }
 
+  sendDB(db: IUser[]) {
+    if (process.send) process.send(db);
+  }
+
   close(callback: () => void) {
     setImmediate(() => {
       this.server.emit("close");
@@ -52,10 +63,6 @@ class Application {
     this.server.closeAllConnections();
     this.server.close(callback);
     callback();
-  }
-
-  kill() {
-    process.exit();
   }
 
   addRouter(router: Router) {
@@ -70,6 +77,37 @@ class Application {
           }
         );
       });
+    });
+  }
+
+  initRouterMulti() {
+    this.router.get("/api/users", controllerMulti.getUsers);
+    this.router.post("/api/users", controllerMulti.createUser);
+    this.router.get("/api/users/:id", controllerMulti.getUser);
+    this.router.put("/api/users/:id", controllerMulti.updateUser);
+    this.router.delete("/api/users/:id", controllerMulti.deleteUser);
+    this.router.put("/api/users", controllerMulti.updateUser);
+    this.router.delete("/api/users", controllerMulti.deleteUser);
+  }
+
+  addRouterMulti() {
+    Object.keys(this.router.endpoints).forEach((path) => {
+      const endpoint = this.router.endpoints[path];
+      Object.keys(endpoint).forEach((method) => {
+        this.emitter.on(
+          this.getRouteMask(path, method),
+          (req, res) => {
+            const handler = endpoint[method];
+            handler(req, res, this.db, this.sendDB);
+          }
+        );
+      });
+    });
+  }
+
+  listenPrimaryMulti() {
+    process.on("message", (data) => {
+      this.db = data as IUser[];
     });
   }
 

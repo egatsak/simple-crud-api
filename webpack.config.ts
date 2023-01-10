@@ -1,9 +1,5 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
 
-/* const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
- */
 export default {
   mode: "production",
   entry: "./src/index.ts",

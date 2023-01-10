@@ -1,17 +1,14 @@
 import { randomUUID } from "crypto";
 
+import { ErrorMessages, IReq, IRes, IUser } from "./models/models";
 import { errorHandler } from "./helpers/errorHandler";
 import fieldsValidator from "./helpers/fieldsValidator";
 
-import { ErrorMessages, IReq, IRes } from "./models/models";
-
-import { users } from ".";
-
 //@desc   Get users
 //@route  GET /api/users
-export const getUsers = async (req: IReq, res: IRes) => {
+export const getUsers = async (req: IReq, res: IRes, db: IUser[]) => {
   try {
-    res.send(users);
+    res.send(db);
   } catch (e) {
     errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500, e);
   }
@@ -19,7 +16,12 @@ export const getUsers = async (req: IReq, res: IRes) => {
 
 //@desc   Create new user
 //@route  POST /api/users
-export const createUser = async (req: IReq, res: IRes) => {
+export const createUser = async (
+  req: IReq,
+  res: IRes,
+  db: IUser[],
+  send: (db: IUser[]) => {}
+) => {
   try {
     if (req.body) {
       if (Object.keys(req.body).length > 3) {
@@ -40,13 +42,14 @@ export const createUser = async (req: IReq, res: IRes) => {
 
       let user = req.body;
 
-      if (users.find((item) => item.username === user.username)) {
+      if (db.find((item) => item.username === user.username)) {
         errorHandler(req, ErrorMessages.USER_ALREADY_EXISTS, 400);
         return;
       }
 
       user.id = randomUUID();
-      users.push(user);
+      db.push(user);
+      send(db);
       res.send(user, 201);
       return;
     } else {
@@ -59,10 +62,10 @@ export const createUser = async (req: IReq, res: IRes) => {
 
 //@desc   Get user
 //@route  GET /api/users/:id
-export const getUser = async (req: IReq, res: IRes) => {
+export const getUser = async (req: IReq, res: IRes, db: IUser[]) => {
   try {
     if (req.id) {
-      let user = users.find((item) => item.id === req.id);
+      let user = db.find((item) => item.id === req.id);
       if (user) {
         res.send(user, 200);
         return;
@@ -77,7 +80,12 @@ export const getUser = async (req: IReq, res: IRes) => {
 
 //@desc   Update user
 //@route  PUT /api/users/:id
-export const updateUser = async (req: IReq, res: IRes) => {
+export const updateUser = async (
+  req: IReq,
+  res: IRes,
+  db: IUser[],
+  send: (db: IUser[]) => {}
+) => {
   try {
     if (req.body) {
       if (!req.id) {
@@ -86,7 +94,7 @@ export const updateUser = async (req: IReq, res: IRes) => {
       }
 
       if (req.id) {
-        let user = users.find((item) => item.id === req.id);
+        let user = db.find((item) => item.id === req.id);
 
         if (!user) {
           errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
@@ -112,6 +120,7 @@ export const updateUser = async (req: IReq, res: IRes) => {
         user.username = req.body.username;
         user.age = req.body.age;
         user.hobbies = req.body.hobbies;
+        send(db);
         res.send(user, 200);
         return;
       }
@@ -127,7 +136,12 @@ export const updateUser = async (req: IReq, res: IRes) => {
 
 //@desc   Delete user
 //@route  DELETE /api/users/:id
-export const deleteUser = async (req: IReq, res: IRes) => {
+export const deleteUser = async (
+  req: IReq,
+  res: IRes,
+  db: IUser[],
+  send: (db: IUser[]) => {}
+) => {
   try {
     if (!req.id) {
       errorHandler(req, ErrorMessages.MISSING_URL_ID, 400);
@@ -135,14 +149,15 @@ export const deleteUser = async (req: IReq, res: IRes) => {
     }
 
     if (req.id) {
-      let userIndex = users.findIndex((item) => item.id === req.id);
+      let userIndex = db.findIndex((item) => item.id === req.id);
 
       if (userIndex === -1) {
         errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
         return;
       }
 
-      users.splice(userIndex, 1);
+      db.splice(userIndex, 1);
+      send(db);
       res.send("_", 204);
     } else {
       errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500);

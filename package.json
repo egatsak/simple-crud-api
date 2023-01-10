@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
+    "start:multi": "nodemon ./src/multi.ts",
     "start:dev": "nodemon ./src/index.ts",
     "build": "npx webpack",
     "start:prod": "npm run build && node dist/bundle.js",

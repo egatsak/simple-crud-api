@@ -13,7 +13,6 @@ export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
   if (url.endsWith("/")) {
     url = url.slice(0, url.length - 1);
   }
-
   const parsedUrl = new URL(url, baseUrl);
   const pathnameParts = url.split("/");
 
@@ -37,7 +36,6 @@ export default (baseUrl: string) => (req: IReq, res: any, _: any) => {
     req.pathname = pathnameParts.join("/") + "/:id";
     return;
   }
-
   req.pathname = parsedUrl.pathname;
   req.id = id;
 };

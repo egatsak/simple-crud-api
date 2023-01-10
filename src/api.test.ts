@@ -235,4 +235,16 @@ describe("Server App Test Case 3", () => {
       ErrorMessages.FAILED_PARSE_BODY
     );
   });
+
+  it("should PUT user at 'api/users' and receive error response", async () => {
+    const res = await response.put("/api/users").send(mockUser);
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.MISSING_URL_ID);
+  });
+
+  it("should DELETE user at 'api/users' and receive error response", async () => {
+    const res = await response.put("/api/users").send(mockUser);
+    expect(res.statusCode).toBe(400);
+    expect(res.text).toBe(ErrorMessages.MISSING_URL_ID);
+  });
 });
