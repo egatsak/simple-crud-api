@@ -1,15 +1,24 @@
+import dotenv from "dotenv";
+
 import Application from "./framework/Application";
-import userRouter from "./src/user-router";
 import jsonParser from "./framework/parseJson";
+import parseUrl from "./framework/parseUrl";
+import bodyParser from "./framework/bodyParser";
+import userRouter from "./user-router";
+
 import { IUser } from "./models/models";
 
+dotenv.config();
+
 const PORT = process.env.PORT || 5000;
-const API_URL = process.env.BASE_URL || "http://localhost:5000";
+export const API_URL =
+  process.env.BASE_URL || "http://localhost:5000";
 
-const app = new Application();
+export const app = new Application();
 
+app.use(bodyParser);
 app.use(jsonParser);
-//app.use(parseUrl(API_URL));
+app.use(parseUrl(API_URL));
 app.addRouter(userRouter);
 
 export const users = [] as IUser[];
