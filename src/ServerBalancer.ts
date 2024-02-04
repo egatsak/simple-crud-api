@@ -23,7 +23,7 @@ export default class ServerBalancer {
 
   constructor() {
     this.db = [];
-    this.cpusCount = os.cpus().length;
+    this.cpusCount = os.availableParallelism() - 1;
     this.workers = [];
     this.workersCount = 0;
     this.emitter = new EventEmitter();
