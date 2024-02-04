@@ -1,8 +1,8 @@
-import {errorHandler} from "../helpers/errorHandler";
-import {ErrorMessages, Req} from "../models/models";
-import {checkIfValidUUID} from "../helpers/helpers";
+import { errorHandler } from '../helpers/errorHandler';
+import { ErrorMessages, Req } from '../models/models';
+import { checkIfValidUUID } from '../helpers/helpers';
 
-export default (baseUrl: string) => (req: Req, res: any, _: any) => {
+export default (baseUrl: string) => (req: Req) => {
   let url = req.url;
 
   if (!url) {
@@ -10,15 +10,18 @@ export default (baseUrl: string) => (req: Req, res: any, _: any) => {
     return;
   }
 
-  if (url.endsWith("/")) {
+  if (url.endsWith('/')) {
     url = url.slice(0, url.length - 1);
   }
 
   const parsedUrl = new URL(url, baseUrl);
-  const pathnameParts = url.split("/");
+  const pathnameParts = url.split('/');
 
   // /api/users (kostyl')
-  if (pathnameParts.length > 4 || pathnameParts.slice(0, 3).join("/") !== "/api/users") {
+  if (
+    pathnameParts.length > 4 ||
+    pathnameParts.slice(0, 3).join('/') !== '/api/users'
+  ) {
     return;
   }
 
@@ -32,7 +35,7 @@ export default (baseUrl: string) => (req: Req, res: any, _: any) => {
   if (checkIfValidUUID(id)) {
     req.id = id;
     pathnameParts.pop();
-    req.pathname = pathnameParts.join("/") + "/:id";
+    req.pathname = pathnameParts.join('/') + '/:id';
     return;
   }
 

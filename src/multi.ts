@@ -1,14 +1,15 @@
-import cluster from "node:cluster";
+import cluster from 'node:cluster';
 
-import Application from "./framework/Application";
-import ServerBalancer from "./ServerBalancer";
+import Application from './framework/Application';
+import ServerBalancer from './ServerBalancer';
 
-import jsonParser from "./framework/parseJson";
-import parseUrl from "./framework/parseUrl";
-import bodyParser from "./framework/bodyParser";
+import jsonParser from './framework/parseJson';
+import parseUrl from './framework/parseUrl';
+import bodyParser from './framework/bodyParser';
 
 export const PORT = Number(process.env.PORT) ?? 5000;
-export const API_URL = process.env.BASE_URL + `:${PORT}` ?? "http://localhost:5000";
+export const API_URL =
+  process.env.BASE_URL + `:${PORT}` ?? 'http://localhost:5000';
 
 const start = async () => {
   try {
@@ -20,7 +21,8 @@ const start = async () => {
       });
     } else {
       const WORKER_PORT = PORT + cluster.worker!.id;
-      const API_URL = process.env.BASE_URL + `:${WORKER_PORT}` || "http://localhost:5000";
+      const API_URL =
+        process.env.BASE_URL + `:${WORKER_PORT}` || 'http://localhost:5000';
 
       const appWorker = new Application();
       appWorker.use(bodyParser);

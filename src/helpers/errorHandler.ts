@@ -1,8 +1,13 @@
-import {Req} from "../models/models";
+import { Req } from '../models/models';
 
-export function errorHandler(req: Req, errorMessage: string, errorStatus: number, e?: any) {
+export function errorHandler(
+  req: Req,
+  errorMessage: string,
+  errorStatus: number,
+  e?: any,
+) {
   if (!req.err) {
-    req.err = {message: errorMessage};
+    req.err = { message: errorMessage };
     req.errorMessage = errorMessage;
     if (e?.message) {
       req.errorMessage += `; ${e.message}`;

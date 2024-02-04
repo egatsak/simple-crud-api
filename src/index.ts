@@ -1,13 +1,14 @@
-import Application from "./framework/Application";
-import jsonParser from "./framework/parseJson";
-import parseUrl from "./framework/parseUrl";
-import bodyParser from "./framework/bodyParser";
-import userRouter from "./user-router";
+import Application from './framework/Application';
+import jsonParser from './framework/parseJson';
+import parseUrl from './framework/parseUrl';
+import bodyParser from './framework/bodyParser';
+import userRouter from './user-router';
 
-import {User} from "./models/models";
+import { User } from './models/models';
 
 const PORT = Number(process.env.PORT) ?? 5000;
-export const API_URL = process.env.BASE_URL + `:${PORT}` || "http://localhost:5000";
+export const API_URL =
+  process.env.BASE_URL + `:${PORT}` || 'http://localhost:5000';
 
 export const app = new Application();
 

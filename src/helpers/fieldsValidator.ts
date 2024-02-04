@@ -6,23 +6,23 @@ class FieldValidator {
   }
 
   validateUsername(username: any) {
-    if (typeof username !== "string" || username.length === 0) {
-      this.errors.push("Invalid username");
+    if (typeof username !== 'string' || username.length === 0) {
+      this.errors.push('Invalid username');
     }
   }
 
   validateAge(age: any) {
-    if (typeof age !== "number" || age < 0) {
-      this.errors.push("Invalid age value");
+    if (typeof age !== 'number' || age < 0) {
+      this.errors.push('Invalid age value');
     }
   }
 
   validateHobbies(hobbies: any) {
     if (
       !Array.isArray(hobbies) ||
-      hobbies.some((item) => typeof item !== "string")
+      hobbies.some((item) => typeof item !== 'string')
     ) {
-      this.errors.push("Invalid hobbies");
+      this.errors.push('Invalid hobbies');
     }
   }
 

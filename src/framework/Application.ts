@@ -1,10 +1,10 @@
-import http, {createServer, IncomingMessage, ServerResponse} from "node:http";
-import EventEmitter from "node:events";
+import http, { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import EventEmitter from 'node:events';
 
-import Router from "./Router";
-import {ErrorMessages, Middleware, Req, Res, User} from "../models/models";
+import Router from './Router';
+import { ErrorMessages, Middleware, Req, Res, User } from '../models/models';
 
-import * as controllerMulti from "../user-controller-multi";
+import * as controllerMulti from '../user-controller-multi';
 
 class Application {
   db: User[];
@@ -28,10 +28,10 @@ class Application {
   }
 
   listen(port: number, callback: () => void) {
-    this.server.on("connection", socket => {
+    this.server.on('connection', (socket) => {
       this.sockets.add(socket);
 
-      this.server.once("close", () => {
+      this.server.once('close', () => {
         this.sockets.delete(socket);
       });
     });
@@ -45,7 +45,7 @@ class Application {
 
   close(callback: () => void) {
     setImmediate(() => {
-      this.server.emit("close");
+      this.server.emit('close');
     });
     this.sockets.forEach((val: any) => {
       val.destroy();
@@ -57,9 +57,9 @@ class Application {
   }
 
   addRouter(router: Router) {
-    Object.keys(router.endpoints).forEach(path => {
+    Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];
-      Object.keys(endpoint).forEach(method => {
+      Object.keys(endpoint).forEach((method) => {
         this.emitter.on(this.getRouteMask(path, method), (req, res) => {
           const handler = endpoint[method];
           handler(req, res);
@@ -69,19 +69,19 @@ class Application {
   }
 
   initRouterMulti() {
-    this.router.get("/api/users", controllerMulti.getUsers);
-    this.router.post("/api/users", controllerMulti.createUser);
-    this.router.get("/api/users/:id", controllerMulti.getUser);
-    this.router.put("/api/users/:id", controllerMulti.updateUser);
-    this.router.delete("/api/users/:id", controllerMulti.deleteUser);
-    this.router.put("/api/users", controllerMulti.updateUser);
-    this.router.delete("/api/users", controllerMulti.deleteUser);
+    this.router.get('/api/users', controllerMulti.getUsers);
+    this.router.post('/api/users', controllerMulti.createUser);
+    this.router.get('/api/users/:id', controllerMulti.getUser);
+    this.router.put('/api/users/:id', controllerMulti.updateUser);
+    this.router.delete('/api/users/:id', controllerMulti.deleteUser);
+    this.router.put('/api/users', controllerMulti.updateUser);
+    this.router.delete('/api/users', controllerMulti.deleteUser);
   }
 
   addRouterMulti() {
-    Object.keys(this.router.endpoints).forEach(path => {
+    Object.keys(this.router.endpoints).forEach((path) => {
       const endpoint = this.router.endpoints[path];
-      Object.keys(endpoint).forEach(method => {
+      Object.keys(endpoint).forEach((method) => {
         this.emitter.on(this.getRouteMask(path, method), (req, res) => {
           const handler = endpoint[method];
           handler(req, res, this.db, this.sendDB);
@@ -91,27 +91,33 @@ class Application {
   }
 
   listenPrimaryMulti() {
-    process.on("message", data => {
+    process.on('message', (data) => {
       this.db = data as User[];
     });
   }
 
   _createServer() {
     return createServer((req: Req, res: any) => {
-      let body = "";
-      req.on("data", chunk => {
+      let body = '';
+      req.on('data', (chunk) => {
         body += chunk;
       });
 
-      req.on("end", () => {
-        this.middlewares.forEach(middleware => middleware(req, res, body));
+      req.on('end', () => {
+        this.middlewares.forEach((middleware) => middleware(req, res, body));
 
-        const emitted = this.emitter.emit(this.getRouteMask(req.pathname, req.method), req, res);
+        const emitted = this.emitter.emit(
+          this.getRouteMask(req.pathname, req.method),
+          req,
+          res,
+        );
 
         if (!emitted || req.errorStatus) {
           try {
             (res as Res).writeHead(req.errorStatus || 404);
-            (res as Res).end(req.err ? req.errorMessage : ErrorMessages.PAGE_NOT_FOUND);
+            (res as Res).end(
+              req.err ? req.errorMessage : ErrorMessages.PAGE_NOT_FOUND,
+            );
           } catch (e) {
             console.log(e);
           }

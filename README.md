@@ -9,13 +9,7 @@
 - Please clone this repository
 - Go to app folder `cd simple-crud-api`
 - Run `npm install` to install the dependencies
-- Add `.env` file to the root folder containing the next variables:
-
-  `PORT=5000`
-
-  `NODE_ENV=development`
-
-  `BASE_URL=http://localhost`
+- Rename `.env.example` to `.env`
 
 Use the following scripts:
 

@@ -1,11 +1,17 @@
-import {Server, createServer, IncomingMessage, request as httpRequest, ServerResponse} from "node:http";
-import os from "node:os";
-import cluster, {Worker} from "node:cluster";
-import {EventEmitter} from "node:events";
+import {
+  Server,
+  createServer,
+  IncomingMessage,
+  request as httpRequest,
+  ServerResponse,
+} from 'node:http';
+import os from 'node:os';
+import cluster, { Worker } from 'node:cluster';
+import { EventEmitter } from 'node:events';
 
-import {User} from "./models/models";
+import { User } from './models/models';
 
-import {PORT} from "./multi";
+import { PORT } from './multi';
 
 export default class ServerBalancer {
   cpusCount: number;
@@ -27,9 +33,9 @@ export default class ServerBalancer {
   }
 
   listen(port: number, cb: () => void) {
-    process.on("SIGINT", () => {
+    process.on('SIGINT', () => {
       this.server.close();
-      this.workers.forEach(worker => worker.kill());
+      this.workers.forEach((worker) => worker.kill());
     });
 
     this.server.listen(port, cb);
@@ -40,9 +46,9 @@ export default class ServerBalancer {
       const worker = cluster.fork();
       this.workers.push(worker);
 
-      worker.on("message", data => {
+      worker.on('message', (data) => {
         this.db = data as User[];
-        this.workers.forEach(worker => {
+        this.workers.forEach((worker) => {
           if (worker.id !== this.workersCount) worker.send(data);
         });
       });
@@ -50,9 +56,9 @@ export default class ServerBalancer {
   }
 
   listenChildWorkers() {
-    this.workers.forEach(worker => {
-      worker.on("message", data => {
-        this.workers.forEach(worker => {
+    this.workers.forEach((worker) => {
+      worker.on('message', (data) => {
+        this.workers.forEach((worker) => {
           if (worker.id !== this.workersCount) {
             worker.send(data);
           }
@@ -75,39 +81,39 @@ export default class ServerBalancer {
 
   _createServer() {
     return createServer((req, res) => {
-      let body = "";
-      req.on("data", chunk => {
+      let body = '';
+      req.on('data', (chunk) => {
         body += chunk;
       });
 
-      req.on("end", () => {
+      req.on('end', () => {
         const workerId = this.nextWorker();
 
         const childPort = PORT + workerId;
 
         const workerRequest = httpRequest({
-          host: "localhost",
+          host: 'localhost',
           port: childPort,
           path: req.url,
-          method: req.method
+          method: req.method,
         });
 
-        console.log("Request sent to port " + childPort);
+        console.log('Request sent to port ' + childPort);
 
-        workerRequest.on("error", err => {
+        workerRequest.on('error', (err) => {
           res.writeHead(500);
-          res.end("Worker Connection Error " + err?.message);
+          res.end('Worker Connection Error ' + err?.message);
         });
 
         workerRequest.write(body);
         workerRequest.end();
 
-        workerRequest.on("response", workerRes => {
-          let body = "";
-          workerRes.on("data", chunk => {
+        workerRequest.on('response', (workerRes) => {
+          let body = '';
+          workerRes.on('data', (chunk) => {
             body += chunk;
           });
-          workerRes.on("end", () => {
+          workerRes.on('end', () => {
             res.statusCode = workerRes.statusCode!;
             res.end(body);
           });

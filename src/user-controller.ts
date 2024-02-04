@@ -1,11 +1,11 @@
-import {randomUUID} from "node:crypto";
+import { randomUUID } from 'node:crypto';
 
-import {errorHandler} from "./helpers/errorHandler";
-import fieldsValidator from "./helpers/fieldsValidator";
+import { errorHandler } from './helpers/errorHandler';
+import fieldsValidator from './helpers/fieldsValidator';
 
-import {ErrorMessages, Req, Res} from "./models/models";
+import { ErrorMessages, Req, Res } from './models/models';
 
-import {users} from ".";
+import { users } from '.';
 
 //@desc   Get users
 //@route  GET /api/users
@@ -27,16 +27,20 @@ export const createUser = async (req: Req, res: Res) => {
         return;
       }
 
-      const errors = fieldsValidator.validate(req.body.username, req.body.age, req.body.hobbies);
+      const errors = fieldsValidator.validate(
+        req.body.username,
+        req.body.age,
+        req.body.hobbies,
+      );
 
       if (errors.length) {
-        errorHandler(req, errors.join(", ") + "!", 400);
+        errorHandler(req, errors.join(', ') + '!', 400);
         return;
       }
 
-      let user = req.body;
+      const user = req.body;
 
-      if (users.find(item => item.username === user.username)) {
+      if (users.find((item) => item.username === user.username)) {
         errorHandler(req, ErrorMessages.USER_ALREADY_EXISTS, 400);
         return;
       }
@@ -58,7 +62,7 @@ export const createUser = async (req: Req, res: Res) => {
 export const getUser = async (req: Req, res: Res) => {
   try {
     if (req.id) {
-      let user = users.find(item => item.id === req.id);
+      const user = users.find((item) => item.id === req.id);
       if (user) {
         res.send(user, 200);
         return;
@@ -82,7 +86,7 @@ export const updateUser = async (req: Req, res: Res) => {
       }
 
       if (req.id) {
-        let user = users.find(item => item.id === req.id);
+        const user = users.find((item) => item.id === req.id);
 
         if (!user) {
           errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
@@ -94,10 +98,14 @@ export const updateUser = async (req: Req, res: Res) => {
           return;
         }
 
-        const errors = fieldsValidator.validate(req.body.username, req.body.age, req.body.hobbies);
+        const errors = fieldsValidator.validate(
+          req.body.username,
+          req.body.age,
+          req.body.hobbies,
+        );
 
         if (errors.length) {
-          errorHandler(req, errors.join(", ") + "!", 400);
+          errorHandler(req, errors.join(', ') + '!', 400);
           return;
         }
 
@@ -127,7 +135,7 @@ export const deleteUser = async (req: Req, res: Res) => {
     }
 
     if (req.id) {
-      let userIndex = users.findIndex(item => item.id === req.id);
+      const userIndex = users.findIndex((item) => item.id === req.id);
 
       if (userIndex === -1) {
         errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
@@ -135,7 +143,7 @@ export const deleteUser = async (req: Req, res: Res) => {
       }
 
       users.splice(userIndex, 1);
-      res.send("_", 204);
+      res.send('_', 204);
     } else {
       errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500);
     }
