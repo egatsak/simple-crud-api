@@ -1,15 +1,15 @@
-import { randomUUID } from "crypto";
+import {randomUUID} from "node:crypto";
 
-import { errorHandler } from "./helpers/errorHandler";
+import {errorHandler} from "./helpers/errorHandler";
 import fieldsValidator from "./helpers/fieldsValidator";
 
-import { ErrorMessages, IReq, IRes } from "./models/models";
+import {ErrorMessages, Req, Res} from "./models/models";
 
-import { users } from ".";
+import {users} from ".";
 
 //@desc   Get users
 //@route  GET /api/users
-export const getUsers = async (req: IReq, res: IRes) => {
+export const getUsers = async (req: Req, res: Res) => {
   try {
     res.send(users);
   } catch (e) {
@@ -19,7 +19,7 @@ export const getUsers = async (req: IReq, res: IRes) => {
 
 //@desc   Create new user
 //@route  POST /api/users
-export const createUser = async (req: IReq, res: IRes) => {
+export const createUser = async (req: Req, res: Res) => {
   try {
     if (req.body) {
       if (Object.keys(req.body).length > 3) {
@@ -27,11 +27,7 @@ export const createUser = async (req: IReq, res: IRes) => {
         return;
       }
 
-      const errors = fieldsValidator.validate(
-        req.body.username,
-        req.body.age,
-        req.body.hobbies
-      );
+      const errors = fieldsValidator.validate(req.body.username, req.body.age, req.body.hobbies);
 
       if (errors.length) {
         errorHandler(req, errors.join(", ") + "!", 400);
@@ -40,7 +36,7 @@ export const createUser = async (req: IReq, res: IRes) => {
 
       let user = req.body;
 
-      if (users.find((item) => item.username === user.username)) {
+      if (users.find(item => item.username === user.username)) {
         errorHandler(req, ErrorMessages.USER_ALREADY_EXISTS, 400);
         return;
       }
@@ -59,10 +55,10 @@ export const createUser = async (req: IReq, res: IRes) => {
 
 //@desc   Get user
 //@route  GET /api/users/:id
-export const getUser = async (req: IReq, res: IRes) => {
+export const getUser = async (req: Req, res: Res) => {
   try {
     if (req.id) {
-      let user = users.find((item) => item.id === req.id);
+      let user = users.find(item => item.id === req.id);
       if (user) {
         res.send(user, 200);
         return;
@@ -77,7 +73,7 @@ export const getUser = async (req: IReq, res: IRes) => {
 
 //@desc   Update user
 //@route  PUT /api/users/:id
-export const updateUser = async (req: IReq, res: IRes) => {
+export const updateUser = async (req: Req, res: Res) => {
   try {
     if (req.body) {
       if (!req.id) {
@@ -86,7 +82,7 @@ export const updateUser = async (req: IReq, res: IRes) => {
       }
 
       if (req.id) {
-        let user = users.find((item) => item.id === req.id);
+        let user = users.find(item => item.id === req.id);
 
         if (!user) {
           errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
@@ -98,11 +94,7 @@ export const updateUser = async (req: IReq, res: IRes) => {
           return;
         }
 
-        const errors = fieldsValidator.validate(
-          req.body.username,
-          req.body.age,
-          req.body.hobbies
-        );
+        const errors = fieldsValidator.validate(req.body.username, req.body.age, req.body.hobbies);
 
         if (errors.length) {
           errorHandler(req, errors.join(", ") + "!", 400);
@@ -127,7 +119,7 @@ export const updateUser = async (req: IReq, res: IRes) => {
 
 //@desc   Delete user
 //@route  DELETE /api/users/:id
-export const deleteUser = async (req: IReq, res: IRes) => {
+export const deleteUser = async (req: Req, res: Res) => {
   try {
     if (!req.id) {
       errorHandler(req, ErrorMessages.MISSING_URL_ID, 400);
@@ -135,7 +127,7 @@ export const deleteUser = async (req: IReq, res: IRes) => {
     }
 
     if (req.id) {
-      let userIndex = users.findIndex((item) => item.id === req.id);
+      let userIndex = users.findIndex(item => item.id === req.id);
 
       if (userIndex === -1) {
         errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);

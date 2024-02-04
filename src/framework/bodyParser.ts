@@ -1,7 +1,7 @@
-import { ErrorMessages, IReq, IRes } from "../models/models";
-import { errorHandler } from "../helpers/errorHandler";
+import {ErrorMessages, Req, Res} from "../models/models";
+import {errorHandler} from "../helpers/errorHandler";
 
-export default (req: IReq, res: IRes, body: any) => {
+export default (req: Req, res: Res, body: any) => {
   try {
     if (body) {
       req.body = JSON.parse(body);

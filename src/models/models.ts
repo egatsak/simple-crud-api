@@ -1,13 +1,13 @@
-import { IncomingMessage, ServerResponse } from "http";
+import {IncomingMessage, ServerResponse} from "node:http";
 
-export interface IUser {
+export interface User {
   id: string;
   username: string;
   age: number;
   hobbies: string[];
 }
 
-export interface IReq extends IncomingMessage {
+export interface Req extends IncomingMessage {
   body?: any;
   pathname?: string;
   err?: any;
@@ -16,12 +16,12 @@ export interface IReq extends IncomingMessage {
   id?: string;
 }
 
-export interface IRes extends ServerResponse<IReq> {
-  req: IReq;
+export interface Res extends ServerResponse<Req> {
+  req: Req;
   send: (data: any, code?: number) => void;
 }
 
-export type IMiddleware = (req: IReq, res: IRes, body: any) => void;
+export type Middleware = (req: Req, res: Res, body: any) => void;
 
 export enum ErrorMessages {
   PAGE_NOT_FOUND = "Page not found",

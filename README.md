@@ -43,7 +43,7 @@ Use the following scripts:
 
 Use [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to send HTTP requests.
 
-In the root folder you can find `Insomnia_doc.json` - you can use it if you prefer Insomnia (as me).
+In the root folder you can find `Insomnia_doc.json` - you can use it if you prefer Insomnia (as I do).
 
 Default URL will be `http://localhost:5000/api/users`
 

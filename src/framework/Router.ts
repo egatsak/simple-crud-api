@@ -16,9 +16,7 @@ class Router {
 
     try {
       if (endpoint[method]) {
-        throw new Error(
-          `${method} on address ${path} already exists!`
-        );
+        throw new Error(`${method} on address ${path} already exists!`);
       }
     } catch (e: any) {
       console.log(e?.message);

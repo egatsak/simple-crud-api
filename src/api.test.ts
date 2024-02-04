@@ -1,15 +1,15 @@
 import request from "supertest";
-import { app } from ".";
-import { checkIfValidUUID } from "./helpers/helpers";
-import { ErrorMessages, IUser } from "./models/models";
+import {app} from ".";
+import {checkIfValidUUID} from "./helpers/helpers";
+import {ErrorMessages, User} from "./models/models";
 
-const mockUser: Omit<IUser, "id"> = {
+const mockUser: Omit<User, "id"> = {
   username: "user1",
   age: 25,
   hobbies: ["JS", "TS", "REST API"]
 };
 
-const mockUserUpdate: Omit<IUser, "id"> = {
+const mockUserUpdate: Omit<User, "id"> = {
   username: "user2",
   age: 26,
   hobbies: ["drinking", "smoking", "girls"]
@@ -19,7 +19,7 @@ describe("Server App Test Case 1", () => {
   const response = request(app.server);
   let userId: any;
 
-  afterAll((done) => {
+  afterAll(done => {
     app.close(() => {});
     done();
   });
@@ -39,7 +39,7 @@ describe("Server App Test Case 1", () => {
   it("should POST and add new user", async () => {
     const res = await response.post("/api/users").send(mockUser);
     expect(res.statusCode).toBe(201);
-    const user = res.body as IUser;
+    const user = res.body as User;
     userId = user.id;
     expect(user.username).toBe(mockUser.username);
     expect(user.age).toBe(mockUser.age);
@@ -50,8 +50,8 @@ describe("Server App Test Case 1", () => {
   it("should check if added user is in the DB", async () => {
     const res = await response.get("/api/users");
     expect(res.statusCode).toBe(200);
-    const users = res.body as IUser[];
-    const user = users.find((us) => us.id === userId);
+    const users = res.body as User[];
+    const user = users.find(us => us.id === userId);
     expect(user?.username).toBe(mockUser.username);
     expect(user?.age).toBe(mockUser.age);
     expect(user?.hobbies).toEqual(mockUser.hobbies);
@@ -60,18 +60,16 @@ describe("Server App Test Case 1", () => {
   it("should GET user by pathname with userID", async () => {
     const res = await response.get(`/api/users/${userId}`);
     expect(res.statusCode).toBe(200);
-    const user = res.body as IUser;
+    const user = res.body as User;
     expect(user?.username).toBe(mockUser.username);
     expect(user?.age).toBe(mockUser.age);
     expect(user?.hobbies).toEqual(mockUser.hobbies);
   });
 
   it("should PUT and update user", async () => {
-    const res = await response
-      .put(`/api/users/${userId}`)
-      .send(mockUserUpdate);
+    const res = await response.put(`/api/users/${userId}`).send(mockUserUpdate);
     expect(res.statusCode).toBe(200);
-    const user = res.body as IUser;
+    const user = res.body as User;
     expect(user?.username).toBe(mockUserUpdate.username);
     expect(user?.age).toBe(mockUserUpdate.age);
     expect(user?.hobbies).toEqual(mockUserUpdate.hobbies);
@@ -94,7 +92,7 @@ describe("Server App Test Case 2", () => {
   const response = request(app.server);
   let userId: any;
 
-  afterAll((done) => {
+  afterAll(done => {
     app.close(() => {});
     done();
   });
@@ -102,7 +100,7 @@ describe("Server App Test Case 2", () => {
   it("should POST and create new user", async () => {
     const res = await response.post("/api/users").send(mockUser);
     expect(res.statusCode).toBe(201);
-    const user = res.body as IUser;
+    const user = res.body as User;
     userId = user.id;
     expect(user.username).toBe(mockUser.username);
     expect(user.age).toBe(mockUser.age);
@@ -113,7 +111,7 @@ describe("Server App Test Case 2", () => {
   it("should GET and check if added user is in the DB by pathname with userID", async () => {
     const res = await response.get(`/api/users/${userId}`);
     expect(res.statusCode).toBe(200);
-    const user = res.body as IUser;
+    const user = res.body as User;
     expect(user?.username).toBe(mockUser.username);
     expect(user?.age).toBe(mockUser.age);
     expect(user?.hobbies).toEqual(mockUser.hobbies);
@@ -126,17 +124,13 @@ describe("Server App Test Case 2", () => {
   });
 
   it("should POST user without age field and receive error response", async () => {
-    const res = await response
-      .post("/api/users")
-      .send({ username: "John", hobbies: ["drink"] });
+    const res = await response.post("/api/users").send({username: "John", hobbies: ["drink"]});
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INVALID_AGE_VALUE);
   });
 
   it("should PUT user with incorrect JSON and receive error response", async () => {
-    const res = await response
-      .put(`/api/users/${userId}`)
-      .send({ ...mockUser, hobbies: null });
+    const res = await response.put(`/api/users/${userId}`).send({...mockUser, hobbies: null});
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INVALID_HOBBIES);
   });
@@ -158,7 +152,7 @@ describe("Server App Test Case 3", () => {
   const response = request(app.server);
   let userId: any;
 
-  afterAll((done) => {
+  afterAll(done => {
     app.close(() => {});
     done();
   });
@@ -166,7 +160,7 @@ describe("Server App Test Case 3", () => {
   it("should POST and create new user", async () => {
     const res = await response.post("/api/users").send(mockUser);
     expect(res.statusCode).toBe(201);
-    const user = res.body as IUser;
+    const user = res.body as User;
     userId = user.id;
     expect(user.username).toBe(mockUser.username);
     expect(user.age).toBe(mockUser.age);
@@ -177,47 +171,39 @@ describe("Server App Test Case 3", () => {
   it("should GET and check if added user is in the DB by pathname with userID", async () => {
     const res = await response.get(`/api/users/${userId}`);
     expect(res.statusCode).toBe(200);
-    const user = res.body as IUser;
+    const user = res.body as User;
     expect(user?.username).toBe(mockUser.username);
     expect(user?.age).toBe(mockUser.age);
     expect(user?.hobbies).toEqual(mockUser.hobbies);
   });
 
   it("should GET user with fake ID and receive error response", async () => {
-    const res = await response.get(
-      "/api/users/eb2e080f-2125-49ee-9ba5-4d2822a100d2"
-    );
+    const res = await response.get("/api/users/eb2e080f-2125-49ee-9ba5-4d2822a100d2");
     expect(res.statusCode).toBe(404);
     expect(res.text).toBe(ErrorMessages.USER_NOT_FOUND);
   });
 
   it("should GET user with invalid ID and receive error response", async () => {
-    const res = await response.get(
-      "/api/users/eb2e080f-2125-49ee-9ba5-4d28"
-    );
+    const res = await response.get("/api/users/eb2e080f-2125-49ee-9ba5-4d28");
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INVALID_UUID);
   });
 
   it("should POST user with incorrect field values and receive error response", async () => {
-    const res = await response
-      .post("/api/users")
-      .send({ ...mockUser, username: null });
+    const res = await response.post("/api/users").send({...mockUser, username: null});
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INVALID_USERNAME);
   });
 
   it("should POST user with incorrect JSON and receive error response", async () => {
-    const { age, ...rest } = mockUser;
+    const {age, ...rest} = mockUser;
     const res = await response.post("/api/users").send(rest);
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INVALID_AGE_VALUE);
   });
 
   it("should POST user with redundant fields and receive error response", async () => {
-    const res = await response
-      .post("/api/users")
-      .send({ ...mockUser, baz: "foo" });
+    const res = await response.post("/api/users").send({...mockUser, baz: "foo"});
     expect(res.statusCode).toBe(400);
     expect(res.text).toBe(ErrorMessages.INCORRECT_REQ_DATA);
   });
@@ -231,9 +217,7 @@ describe("Server App Test Case 3", () => {
   it("should POST user with invalid JSON and receive error response", async () => {
     const res = await response.post("/api/users").send(`eifneifn`);
     expect(res.statusCode).toBe(500);
-    expect(res.text.slice(0, 28)).toBe(
-      ErrorMessages.FAILED_PARSE_BODY
-    );
+    expect(res.text.slice(0, 28)).toBe(ErrorMessages.FAILED_PARSE_BODY);
   });
 
   it("should PUT user at 'api/users' and receive error response", async () => {
