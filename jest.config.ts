@@ -15,5 +15,6 @@ export default {
       }
     ]
   },
-  moduleFileExtensions: ["ts", "js", "json"]
+  moduleFileExtensions: ["ts", "js", "json"],
+  setupFiles: ["<rootDir>/jest/setEnvVars.js"]
 };
