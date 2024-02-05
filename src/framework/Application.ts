@@ -30,11 +30,13 @@ class Application {
 
   listen(port: number, callback: () => void) {
     this.server.on('connection', (socket) => {
-      this.sockets.add(socket);
+      if (!this.sockets.has(socket)) {
+        this.sockets.add(socket);
 
-      this.server.once('close', () => {
-        this.sockets.delete(socket);
-      });
+        this.server.once('close', () => {
+          this.sockets.delete(socket);
+        });
+      }
     });
 
     this.server.listen(port, callback);
@@ -48,9 +50,9 @@ class Application {
     setImmediate(() => {
       this.server.emit('close');
     });
-    this.sockets.forEach((val) => {
-      val.destroy();
-      this.sockets.delete(val);
+    this.sockets.forEach((socket) => {
+      socket.destroy();
+      this.sockets.delete(socket);
     });
     this.server.closeAllConnections();
     this.server.close(callback);
@@ -100,6 +102,7 @@ class Application {
   _createServer() {
     return createServer((req: Req, res: any) => {
       let body = '';
+
       req.on('data', (chunk) => {
         body += chunk;
       });
@@ -108,26 +111,22 @@ class Application {
         this.middlewares.forEach((middleware) => middleware(req, res, body));
 
         const emitted = this.emitter.emit(
-          this.getRouteMask(req.pathname, req.method),
+          this.getRouteMask(req.pathname!, req.method!),
           req,
           res,
         );
 
         if (!emitted || req.errorStatus) {
-          try {
-            (res as Res).writeHead(req.errorStatus || 404);
-            (res as Res).end(
-              req.err ? req.errorMessage : ErrorMessages.PAGE_NOT_FOUND,
-            );
-          } catch (e) {
-            console.log(e);
-          }
+          (res as Res).writeHead(req.errorStatus || 404);
+          (res as Res).end(
+            req.err ? req.errorMessage : ErrorMessages.PAGE_NOT_FOUND,
+          );
         }
       });
     });
   }
 
-  private getRouteMask(path: any, method: any) {
+  private getRouteMask(path: string, method: string) {
     return `[${path}]:[${method}]`;
   }
 }

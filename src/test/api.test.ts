@@ -1,7 +1,7 @@
 import request from 'supertest';
-import { app } from '.';
-import { checkIfValidUUID } from './helpers/helpers';
-import { ErrorMessages, User } from './models/models';
+import { app } from '..';
+import { checkIfValidUUID } from '../helpers/helpers';
+import { ErrorMessages, User } from '../models/models';
 
 const mockUser: Omit<User, 'id'> = {
   username: 'user1',

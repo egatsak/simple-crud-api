@@ -1,17 +1,16 @@
-import { Req } from '../models/models';
+import { ErrorMessages, HttpException, Req } from '../models/models';
 
-export function errorHandler(
-  req: Req,
-  errorMessage: string,
-  errorStatus: number,
-  e?: any,
-) {
+export function errorHandler(req: Req, error: unknown, message?: string) {
   if (!req.err) {
-    req.err = { message: errorMessage };
-    req.errorMessage = errorMessage;
-    if (e?.message) {
-      req.errorMessage += `; ${e.message}`;
+    if (error instanceof HttpException) {
+      req.err = { message: error.response };
+      req.errorMessage = error.response;
+      req.errorStatus = error.status;
+    } else {
+      const customErrorMessage = message ?? ErrorMessages.INT_SERVER_ERROR;
+      req.err = { message: customErrorMessage };
+      req.errorMessage = customErrorMessage;
+      req.errorStatus = 500;
     }
-    req.errorStatus = errorStatus;
   }
 }
