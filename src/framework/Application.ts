@@ -1,5 +1,6 @@
 import http, { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import EventEmitter from 'node:events';
+import { Socket } from 'node:net';
 
 import Router from './Router';
 import { ErrorMessages, Middleware, Req, Res, User } from '../models/models';
@@ -10,7 +11,7 @@ class Application {
   db: User[];
   emitter: EventEmitter;
   server: http.Server<typeof IncomingMessage, typeof ServerResponse>;
-  sockets: Set<any>;
+  sockets: Set<Socket>;
   middlewares: Middleware[];
   router: Router;
 
@@ -18,7 +19,7 @@ class Application {
     this.emitter = new EventEmitter();
     this.server = this._createServer();
     this.middlewares = [];
-    this.sockets = new Set();
+    this.sockets = new Set<Socket>();
     this.router = new Router();
     this.db = [];
   }
@@ -47,7 +48,7 @@ class Application {
     setImmediate(() => {
       this.server.emit('close');
     });
-    this.sockets.forEach((val: any) => {
+    this.sockets.forEach((val) => {
       val.destroy();
       this.sockets.delete(val);
     });

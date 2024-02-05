@@ -1,17 +1,17 @@
 import { randomUUID } from 'node:crypto';
 
+import { ErrorMessages, Req, Res } from './models/models';
+
 import { errorHandler } from './helpers/errorHandler';
 import fieldsValidator from './helpers/fieldsValidator';
 
-import { ErrorMessages, Req, Res } from './models/models';
-
-import { users } from '.';
+import database from './db/db';
 
 //@desc   Get users
 //@route  GET /api/users
 export const getUsers = async (req: Req, res: Res) => {
   try {
-    res.send(users);
+    res.send(database.users);
   } catch (e) {
     errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500, e);
   }
@@ -40,15 +40,14 @@ export const createUser = async (req: Req, res: Res) => {
 
       const user = req.body;
 
-      if (users.find((item) => item.username === user.username)) {
+      if (database.users.find((item) => item.username === user.username)) {
         errorHandler(req, ErrorMessages.USER_ALREADY_EXISTS, 400);
         return;
       }
 
       user.id = randomUUID();
-      users.push(user);
+      database.users.push(user);
       res.send(user, 201);
-      return;
     } else {
       errorHandler(req, ErrorMessages.REQ_BODY_MISSING, 400);
     }
@@ -62,7 +61,7 @@ export const createUser = async (req: Req, res: Res) => {
 export const getUser = async (req: Req, res: Res) => {
   try {
     if (req.id) {
-      const user = users.find((item) => item.id === req.id);
+      const user = database.users.find((item) => item.id === req.id);
       if (user) {
         res.send(user, 200);
         return;
@@ -86,7 +85,7 @@ export const updateUser = async (req: Req, res: Res) => {
       }
 
       if (req.id) {
-        const user = users.find((item) => item.id === req.id);
+        const user = database.users.find((item) => item.id === req.id);
 
         if (!user) {
           errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
@@ -135,14 +134,14 @@ export const deleteUser = async (req: Req, res: Res) => {
     }
 
     if (req.id) {
-      const userIndex = users.findIndex((item) => item.id === req.id);
+      const userIndex = database.users.findIndex((item) => item.id === req.id);
 
       if (userIndex === -1) {
         errorHandler(req, ErrorMessages.USER_NOT_FOUND, 404);
         return;
       }
 
-      users.splice(userIndex, 1);
+      database.users.splice(userIndex, 1);
       res.send('_', 204);
     } else {
       errorHandler(req, ErrorMessages.INT_SERVER_ERROR, 500);

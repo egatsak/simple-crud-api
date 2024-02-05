@@ -6,7 +6,7 @@ export default (req: Req, res: Res, body: any) => {
     if (body) {
       req.body = JSON.parse(body);
     }
-  } catch (e: any) {
+  } catch (e) {
     errorHandler(req, ErrorMessages.FAILED_PARSE_BODY, 500, e);
   }
 };

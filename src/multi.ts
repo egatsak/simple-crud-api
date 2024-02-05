@@ -8,8 +8,7 @@ import parseUrl from './framework/parseUrl';
 import bodyParser from './framework/bodyParser';
 
 export const PORT = Number(process.env.PORT) ?? 5000;
-export const API_URL =
-  process.env.BASE_URL + `:${PORT}` ?? 'http://localhost:5000';
+const BASE_URL = process.env.BASE_URL ?? 'http://localhost';
 
 const start = async () => {
   try {
@@ -21,8 +20,7 @@ const start = async () => {
       });
     } else {
       const WORKER_PORT = PORT + cluster.worker!.id;
-      const API_URL =
-        process.env.BASE_URL + `:${WORKER_PORT}` || 'http://localhost:5000';
+      const API_URL = BASE_URL + `:${WORKER_PORT}`;
 
       const appWorker = new Application();
       appWorker.use(bodyParser);
@@ -39,6 +37,7 @@ const start = async () => {
     }
   } catch (e) {
     console.log(e);
+    process.exit(1);
   }
 };
 
