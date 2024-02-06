@@ -1,29 +1,19 @@
-import {
-  Server,
-  createServer,
-  IncomingMessage,
-  request as httpRequest,
-  ServerResponse,
-} from 'node:http';
-import os from 'node:os';
+import { Server, createServer, request as httpRequest } from 'node:http';
+import { availableParallelism } from 'node:os';
 import cluster, { Worker } from 'node:cluster';
 import { EventEmitter } from 'node:events';
-
-import { User } from './models/models';
-
-import { PORT } from './multi';
 
 export default class ServerBalancer {
   cpusCount: number;
   workers: Worker[];
   emitter: EventEmitter;
-  server: Server<typeof IncomingMessage, typeof ServerResponse>;
+  server: Server;
   workersCount: number;
-  db: User[];
+  port: number;
 
-  constructor() {
-    this.db = [];
-    this.cpusCount = os.availableParallelism() - 1;
+  constructor(port: number) {
+    this.port = port;
+    this.cpusCount = availableParallelism() - 1;
     this.workers = [];
     this.workersCount = 0;
     this.emitter = new EventEmitter();
@@ -47,7 +37,6 @@ export default class ServerBalancer {
       this.workers.push(worker);
 
       worker.on('message', (data) => {
-        this.db = data as User[];
         this.workers.forEach((worker) => {
           if (worker.id !== this.workersCount) worker.send(data);
         });
@@ -89,7 +78,7 @@ export default class ServerBalancer {
       req.on('end', () => {
         const workerId = this.nextWorker();
 
-        const childPort = PORT + workerId;
+        const childPort = this.port + workerId;
 
         const workerRequest = httpRequest({
           host: 'localhost',
@@ -110,11 +99,13 @@ export default class ServerBalancer {
 
         workerRequest.on('response', (workerRes) => {
           let body = '';
+
           workerRes.on('data', (chunk) => {
             body += chunk;
           });
+
           workerRes.on('end', () => {
-            res.statusCode = workerRes.statusCode!;
+            res.statusCode = workerRes.statusCode ?? 500;
             res.end(body);
           });
         });

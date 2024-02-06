@@ -13,7 +13,7 @@ const BASE_URL = process.env.BASE_URL ?? 'http://localhost';
 const start = async () => {
   try {
     if (cluster.isPrimary) {
-      const balancer = new ServerBalancer();
+      const balancer = new ServerBalancer(PORT);
 
       balancer.listen(PORT, () => {
         console.log(`Balancer started on port ${PORT}`);
